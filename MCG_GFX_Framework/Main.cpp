@@ -1,12 +1,16 @@
 
 #include <cmath>
+#include <memory>
+#include <list>
+#include <iostream>
 
 #include "MCG_GFX_Lib.h"
 #include "Camera.h"
 #include "RayTracer.h"
 #include "Object.h"
 
-
+#define Shared std::shared_ptr
+#define Weak std::weak_ptr
 
 int main( int argc, char *argv[] )
 {
@@ -58,6 +62,10 @@ int main( int argc, char *argv[] )
 	Camera cam = Camera();
 	Tracer tracer = Tracer();
 
+	int pass = 0;
+
+	std::list<Shared<Sphere>> m_objects;
+	m_objects.push_back(std::make_shared<Sphere>());
 
 	// This is our game loop
 	// It will run until the user presses 'escape' or closes the window
@@ -65,15 +73,26 @@ int main( int argc, char *argv[] )
 	{
 		MCG::SetBackground( glm::vec3(0,0,0) );
 
+		std::cout << "Pass No: " << pass << std::endl;
+
 		for (int x = 0; x < windowSize.x; x++)
 		{
+			
 			for (int y = 0; y < windowSize.y; y++)
 			{
-				pixelColour = tracer.getColour(cam.getRay(glm::vec2(x, y)));
+				/*if (x == 320)
+				{
+					std::cout << "now" << std::endl;
+				}*/
 
-				MCG::DrawPixel(glm::vec2(x, y), pixelColour);
+				//std::cout << x << " " << y << std::endl;
+				pixelColour = tracer.getColour(cam.getRay(glm::vec2(x, y)), &m_objects);
+
+				MCG::DrawPixel(glm::ivec2(x, y), pixelColour);
 			}
+			
 		}
+ 		pass++;
 	}
 
 	return 0;
@@ -81,42 +100,4 @@ int main( int argc, char *argv[] )
 
 }
 
-rayCastHit RaySphereIntersect(Ray _ray, vec3 _pos, float _r)
-{
-	rayCastHit hit;
 
-	vec3 a = _ray.getOrigin();
-	vec3 n = _ray.getDirection();
-	vec3 P = _pos;
-	float d = (P - a - getPointOnLine(_ray, _pos)).length();
-	float x = sqrt((_r * _r) - (d * d));
-
-	vec3 point = a + (dot((P - a), n) - x) * n;
-
-	if (point.length() <= _r)
-	{
-		hit.hit = true;
-		hit.point = point;
-		hit.distance = (point - _ray.getOrigin()).length();
-		hit.normal = getNormal(_pos, point);
-	}
-	else
-	{
-		hit.hit = false;
-	}
-
-	return hit;
-}
-
-vec3 getPointOnLine(Ray _ray, glm::vec3 _point)
-{
-	vec3 a = _ray.getOrigin();
-	vec3 n = _ray.getDirection();
-	vec3 P = _point;
-	return (dot((P - a), n)) * n;
-}
-
-vec3 getNormal(glm::vec3 _SphereCenter, vec3 _intersectPoint)
-{
-	return normalize(_intersectPoint - _SphereCenter);
-}
