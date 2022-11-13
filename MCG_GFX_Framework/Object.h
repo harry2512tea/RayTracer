@@ -13,7 +13,7 @@ public:
 	float getRadius() { return m_radius; };
 	vec3 getNormal(vec3 _intersect);
 private:
-	vec3 colour = vec3(1.0f, 0.0f, 1.0f);
+	vec3 colour = vec3(0.7f, 0.0f,0.7f);
 	float m_radius = 1.0f;
 	glm::vec3 m_position{0.0f, 0.0f, -8.0f};
 

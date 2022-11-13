@@ -80,12 +80,6 @@ int main( int argc, char *argv[] )
 			
 			for (int y = 0; y < windowSize.y; y++)
 			{
-				/*if (x == 320)
-				{
-					std::cout << "now" << std::endl;
-				}*/
-
-				//std::cout << x << " " << y << std::endl;
 				pixelColour = tracer.getColour(cam.getRay(glm::vec2(x, y)), &m_objects);
 
 				MCG::DrawPixel(glm::ivec2(x, y), pixelColour);

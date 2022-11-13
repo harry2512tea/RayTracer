@@ -38,7 +38,7 @@ class Tracer
 public:
 	glm::vec3 getColour(Ray _ray, std::list<Shared<Sphere>> *Objs);
 private:
-	vec3 LightPos = vec3(-2.0f, -3.0f, 3.0f);
+	vec3 LightPos = vec3(-5.0f, -3.0f, -2.0f);
 	vec3 getPointOnLine(Ray _ray, glm::vec3 _point);
 	rayCastHit RaySphereIntersect(Ray _ray, vec3 _pos, float _r);
 	vec3 getNormal(glm::vec3 _SphereCenter, vec3 _intersectPoint);
