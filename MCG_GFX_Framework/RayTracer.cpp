@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-vec3 Tracer::LightPos = vec3(0.0f, -0.0f, -5.0f);
+vec3 Tracer::LightPos = vec3(0.0f, -0.0f, -10.0f);
 
 glm::vec3 Tracer::getColour(Ray _ray, std::list<Shared<Sphere>>* Objs, int depth, int _ignore)
 {
@@ -35,7 +35,7 @@ glm::vec3 Tracer::getColour(Ray _ray, std::list<Shared<Sphere>>* Objs, int depth
 	}
 	else
 	{
-		return vec3(1.0f);
+		return vec3(0.0f);
 	}
 }
 

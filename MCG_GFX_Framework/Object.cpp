@@ -2,6 +2,7 @@
 #include "RayTracer.h"
 #include "Camera.h"
 
+#include <iostream>
 
 Sphere::Sphere(int _ID, vec3 Pos, vec3 _albedo)
 {
@@ -41,27 +42,47 @@ vec3 Sphere::shadePixel(Ray _ray, glm::vec3 _intersect, vec3 _LightPos, int dept
 		float maxScatter = 90.0f;
 		
 		int maxRayNumbers = 20;
-		int rayNumbers = (int)20 * 1 - Roughness;
+		int rayNumbers = 100;
 
 		I = BRDF * vec3(1.0f) * dot(N, normalize(_LightPos - _intersect));
 
 		for (int i = 0; i < rayNumbers; i++)
 		{
-			quat QuatAroundX = angleAxis(radians(linearRand(-90.0f, 90.0f) * 1 - Roughness), vec3(1.0, 0.0, 0.0));
-			quat QuatAroundY = angleAxis(radians(linearRand(-90.0f, 90.0f) * 1 - Roughness), vec3(0.0, 1.0, 0.0));
-			quat QuatAroundZ = angleAxis(radians(linearRand(-90.0f, 90.0f) * 1 - Roughness), vec3(0.0, 0.0, 1.0));
+			//maxScatter = (1 - Roughness) * maxScatter;
+			//std::cout << 1 - Roughness << std::endl;
+			quat QuatAroundX = angleAxis(radians(linearRand(-maxScatter, maxScatter) * 1 - Roughness), vec3(1.0, 0.0, 0.0));
+			quat QuatAroundY = angleAxis(radians(linearRand(-maxScatter, maxScatter) * 1 - Roughness), vec3(0.0, 1.0, 0.0));
+			quat QuatAroundZ = angleAxis(radians(linearRand(-maxScatter, maxScatter) * 1 - Roughness), vec3(0.0, 0.0, 1.0));
 			quat finalOrientation = QuatAroundX * QuatAroundY * QuatAroundZ;
-			vec3 dir = N * finalOrientation;;
+
+
+			//vec3 dir = reflect(_ray.getDirection(), N) * finalOrientation;
+
+			vec3 dir = N * finalOrientation;
+
+			if (dot(dir, N) < 0)
+			{
+				dir = -dir;
+			}
 			Ray ray = Ray(_intersect, dir);
 
 			//vec3 secondaryLight = Tracer::getColour(ray, Objs, depth + 1, ID) * dot(N, ray.getDirection());
 			//vec3 primaryLight = vec3(1.0f) * dot(N, normalize(_LightPos - _intersect));
 
+			
 
-			I += BRDF * (Tracer::getColour(ray, Objs, depth + 1, ID)) * dot(N, ray.getDirection());
+			BRDF = diffuse + spec;
+			spec = SpecularBRDF(_intersect, _LightPos);
+			//I += BRDF * (Tracer::getColour(ray, Objs, depth + 1, ID) / rayNumbers * dot(N, ray.getDirection()));
+			I += BRDF * (Tracer::getColour(ray, Objs, depth + 1, ID) * dot(N, normalize(_LightPos - _intersect)));
 		}
 
-		
+
+		//I += BRDF * vec3(1.0f) * dot(N, normalize(_LightPos - _intersect));
+
+		vec3 dir = reflect(_ray.getDirection(), N);
+
+		Ray ray = Ray(_intersect, dir);
 		//I += BRDF * (Tracer::getColour(ray, Objs, depth + 1, ID)) * (1.0f - Roughness) * dot(N, normalize(_LightPos - _intersect));
 	}
 	else
@@ -100,7 +121,10 @@ vec3 Sphere::SpecularBRDF(vec3 _intersect, vec3 _lightPos)
 
 	vec3 F = fresnelSchlick(max(dot(N, L), 0.0f));
 
-	vec3 specularBRDF = (F * DistributionGGX(N, H) * GeomSmith(N, V, L)) / (4 * max(dot(N, L), 0.0f) * max(dot(N, V), 0.0f));
+	vec3 nom = (F * DistributionGGX(N, H) * GeomSmith(N, V, L));
+	float denom = (4 * dot(N, L) * dot(N, V));
+
+	vec3 specularBRDF =  nom / denom;
 
 	return specularBRDF;
 }
@@ -126,20 +150,31 @@ float Sphere::GeomSchlickGGX(float NdotV)
 	float r = (Roughness + 1.0f);
 	float k = (r * r) / 8.0f;
 
-	return NdotV / (NdotV * (1.0f - k) + k);
+	float rtn = NdotV / (NdotV * (1.0f - k) + k);
+
+	return rtn;
 }
 
 float Sphere::GeomSmith(vec3 N, vec3 V, vec3 L)
 {
-	float NdotV = max(dot(N, V), 0.0f);
-	float NdotL = max(dot(N, L), 0.0f);
-	float ggx2 = GeomSchlickGGX(NdotV);
-	float ggx1 = GeomSchlickGGX(NdotL);
+	float NdotV = max(dot(N, V), 0.01f);
+	float NdotL = max(dot(N, L), 0.01f);
 
-	return ggx1 * ggx2;
+	//float NdotV = dot(N, V);
+	//float NdotL = dot(N, L);
+
+
+	float ggx1 = GeomSchlickGGX(NdotL);
+	float ggx2 = GeomSchlickGGX(NdotV);
+	
+
+	float rtn = ggx1 * ggx2;
+
+	return rtn;
 }
 
 vec3 Sphere::fresnelSchlick(float cosTheta)
 {
-	return F0 + (1.0f - F0) * (float)pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+	vec3 rtn = F0 + (1.0f - F0) * (float)pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+	return rtn;
 }

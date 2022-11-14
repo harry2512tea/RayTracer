@@ -67,7 +67,7 @@ int main( int argc, char *argv[] )
 	int pass = 0;
 
 	std::list<Shared<Sphere>> m_objects;
-	m_objects.push_back(std::make_shared<Sphere>(1, vec3(1.5f, 0.0f, -17.0f), vec3(0.0f, 1.0f, 0.0f)));
+	m_objects.push_back(std::make_shared<Sphere>(1, vec3(1.5f, 0.0f, -17.0f), vec3(1.0f, 1.0f, 1.0f)));
 	m_objects.push_back(std::make_shared<Sphere>(2, vec3(-1.5f, -1.5f, -17.0f), vec3(0.0f, 0.0f, 1.0f)));
 	m_objects.push_back(std::make_shared<Sphere>(3, vec3(-1.5f, 1.5f, -17.0f), vec3(1.0f, 0.0f, 0.0f)));
 	//m_objects.push_back(std::make_shared<Sphere>());
