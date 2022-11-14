@@ -38,14 +38,30 @@ vec3 Sphere::shadePixel(Ray _ray, glm::vec3 _intersect, vec3 _LightPos, int dept
 	vec3 I;
 	if (depth < maxDepth)
 	{
-		vec3 dir = _ray.getDirection() - (2 * dot(_ray.getDirection(), N) * N);
-		Ray ray = Ray(_intersect, dir);
+		float maxScatter = 90.0f;
 		
-		//vec3 secondaryLight = Tracer::getColour(ray, Objs, depth + 1, ID) * dot(N, ray.getDirection());
-		//vec3 primaryLight = vec3(1.0f) * dot(N, normalize(_LightPos - _intersect));
+		int maxRayNumbers = 20;
+		int rayNumbers = (int)20 * 1 - Roughness;
 
 		I = BRDF * vec3(1.0f) * dot(N, normalize(_LightPos - _intersect));
-		I += BRDF * (Tracer::getColour(ray, Objs, depth + 1, ID))  * dot(N, ray.getDirection());
+
+		for (int i = 0; i < rayNumbers; i++)
+		{
+			quat QuatAroundX = angleAxis(radians(linearRand(-90.0f, 90.0f) * 1 - Roughness), vec3(1.0, 0.0, 0.0));
+			quat QuatAroundY = angleAxis(radians(linearRand(-90.0f, 90.0f) * 1 - Roughness), vec3(0.0, 1.0, 0.0));
+			quat QuatAroundZ = angleAxis(radians(linearRand(-90.0f, 90.0f) * 1 - Roughness), vec3(0.0, 0.0, 1.0));
+			quat finalOrientation = QuatAroundX * QuatAroundY * QuatAroundZ;
+			vec3 dir = N * finalOrientation;;
+			Ray ray = Ray(_intersect, dir);
+
+			//vec3 secondaryLight = Tracer::getColour(ray, Objs, depth + 1, ID) * dot(N, ray.getDirection());
+			//vec3 primaryLight = vec3(1.0f) * dot(N, normalize(_LightPos - _intersect));
+
+
+			I += BRDF * (Tracer::getColour(ray, Objs, depth + 1, ID)) * dot(N, ray.getDirection());
+		}
+
+		
 		//I += BRDF * (Tracer::getColour(ray, Objs, depth + 1, ID)) * (1.0f - Roughness) * dot(N, normalize(_LightPos - _intersect));
 	}
 	else

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <GLM/glm.hpp>
+#include <GLM/ext.hpp>
+#include <GLM/fwd.hpp>
 #include <memory>
 #include <list>
 
@@ -29,7 +31,7 @@ private:
 	float m_radius = 1.0f;
 	glm::vec3 m_position{0.0f, 0.0f, -8.0f};
 
-	int maxDepth = 6;
+	int maxDepth = 1;
 
 	vec3 DiffuseBRDF(vec3 _intersect, vec3 _lightPos);
 	vec3 SpecularBRDF(vec3 _intersect, vec3 _lightPos);
