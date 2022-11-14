@@ -1,7 +1,2 @@
-﻿  Camera.cpp
-  Main.cpp
-  Object.cpp
-C:\RayTracer\RayTracer\MCG_GFX_Framework\Object.cpp(18,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-  RayTracer.cpp
-  Generating Code...
+﻿  Object.cpp
   MCG_GFX_Framework.vcxproj -> C:\RayTracer\RayTracer\Debug\MCG_GFX_Framework.exe

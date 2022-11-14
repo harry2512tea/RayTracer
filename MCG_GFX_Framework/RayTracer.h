@@ -24,7 +24,8 @@ public:
 class Ray
 {
 public:
-
+	Ray();
+	Ray(vec3 _origin, vec3 _direction);
 	vec3 getOrigin() { return m_origin; };
 	vec3 getDirection() { return m_direction; };
 private:
@@ -36,10 +37,10 @@ private:
 class Tracer
 {
 public:
-	glm::vec3 getColour(Ray _ray, std::list<Shared<Sphere>> *Objs);
+	static glm::vec3 getColour(Ray _ray, std::list<Shared<Sphere>> *Objs, int depth, int _ignore);
 private:
-	vec3 LightPos = vec3(-5.0f, -3.0f, -2.0f);
-	vec3 getPointOnLine(Ray _ray, glm::vec3 _point);
-	rayCastHit RaySphereIntersect(Ray _ray, vec3 _pos, float _r);
-	vec3 getNormal(glm::vec3 _SphereCenter, vec3 _intersectPoint);
+	static vec3 LightPos;
+	static vec3 getPointOnLine(Ray _ray, glm::vec3 _point);
+	static rayCastHit RaySphereIntersect(Ray _ray, vec3 _pos, float _r);
+	static vec3 getNormal(glm::vec3 _SphereCenter, vec3 _intersectPoint);
 };

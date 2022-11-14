@@ -12,6 +12,8 @@
 #define Shared std::shared_ptr
 #define Weak std::weak_ptr
 
+using namespace glm;
+
 int main( int argc, char *argv[] )
 {
 	// Variable for storing window dimensions
@@ -65,7 +67,10 @@ int main( int argc, char *argv[] )
 	int pass = 0;
 
 	std::list<Shared<Sphere>> m_objects;
-	m_objects.push_back(std::make_shared<Sphere>());
+	m_objects.push_back(std::make_shared<Sphere>(1, vec3(1.5f, 0.0f, -17.0f), vec3(0.0f, 1.0f, 0.0f)));
+	m_objects.push_back(std::make_shared<Sphere>(2, vec3(-1.5f, -1.5f, -17.0f), vec3(0.0f, 0.0f, 1.0f)));
+	m_objects.push_back(std::make_shared<Sphere>(3, vec3(-1.5f, 1.5f, -17.0f), vec3(1.0f, 0.0f, 0.0f)));
+	//m_objects.push_back(std::make_shared<Sphere>());
 
 	// This is our game loop
 	// It will run until the user presses 'escape' or closes the window
@@ -80,7 +85,7 @@ int main( int argc, char *argv[] )
 			
 			for (int y = 0; y < windowSize.y; y++)
 			{
-				pixelColour = tracer.getColour(cam.getRay(glm::vec2(x, y)), &m_objects);
+				pixelColour = tracer.getColour(cam.getRay(glm::vec2(x, y)), &m_objects, 0, 0);
 
 				MCG::DrawPixel(glm::ivec2(x, y), pixelColour);
 			}
