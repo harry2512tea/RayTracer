@@ -248,3 +248,7 @@ int MCG::ShowAndHold()
 	return 0;
 }
 
+SDL_Renderer* MCG::getRenderer()
+{
+	return _renderer;
+}

@@ -2,20 +2,62 @@
 #include <cmath>
 #include <memory>
 #include <list>
+#include <vector>
 #include <iostream>
+#include <thread>
+#include <mutex>
+#include <SDL/SDL.h>
 
 #include "MCG_GFX_Lib.h"
 #include "Camera.h"
 #include "RayTracer.h"
 #include "Object.h"
 
+
 #define Shared std::shared_ptr
 #define Weak std::weak_ptr
 
 using namespace glm;
 
+std::mutex mutex;
+
+struct forValues
+{
+	int xStart, yStart, xEnd, yEnd;
+	Camera* cam;
+	Tracer* tracer;
+	ivec2 windowSize;
+	std::vector<unsigned char>* _pixels;
+};
+
+void threadFunc(forValues vals, std::list<Shared<Sphere>>& objs)
+{
+	for (int x = vals.xStart; x < vals.xEnd; x++)
+	{
+
+		for (int y = vals.yStart; y < vals.yEnd; y++)
+		{
+			rayCastHit hit;
+			vec3 pixelColour;
+			pixelColour = vals.tracer->getColour(vals.cam->getRay(glm::vec2(x, y)), &objs, 0, 0, hit);
+
+			std::vector<unsigned char> pix;
+			mutex.lock();
+			const unsigned int offset = (vals.windowSize.x * y * 4) + x * 4;
+			vals._pixels[offset + 0] = (pixelColour.z * 256);
+			vals._pixels[offset + 1] = (pixelColour.y * 256);
+			vals._pixels[offset + 2] = (pixelColour.x * 256);
+			vals._pixels[offset + 3] = SDL_ALPHA_OPAQUE;
+			MCG::DrawPixel(glm::ivec2(x, y), pixelColour);
+			mutex.unlock();
+		}
+
+	}
+}
+
 int main( int argc, char *argv[] )
 {
+	
 	// Variable for storing window dimensions
 	glm::ivec2 windowSize( 640, 480 );
 
@@ -66,6 +108,9 @@ int main( int argc, char *argv[] )
 
 	int pass = 0;
 
+	int xblocks = 16;
+	int yblocks = 12;
+
 	std::list<Shared<Sphere>> m_objects;
 	m_objects.push_back(std::make_shared<Sphere>(1, vec3(1.0f, -0.0f, -11.0f), vec3(0.0f, 0.0f, 1.0f)));
 	m_objects.push_back(std::make_shared<Sphere>(2, vec3(-0.5f, -0.0f, -12.0f), vec3(1.0f, 1.0f, 1.0f)));
@@ -76,13 +121,20 @@ int main( int argc, char *argv[] )
 
 	// This is our game loop
 	// It will run until the user presses 'escape' or closes the window
+	
+	std::vector<std::thread> threads;
+	SDL_Texture* texture = SDL_CreateTexture(MCG::getRenderer(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, windowSize.x, windowSize.y);
+
+	int ticks;
 	while( MCG::ProcessFrame() )
 	{
+		threads.clear();
 		MCG::SetBackground( glm::vec3(0,0,0) );
 
 		std::cout << "Pass No: " << pass << std::endl;
 
-		for (int x = 0; x < windowSize.x; x++)
+		std::vector<unsigned char> pixels(windowSize.x * windowSize.y * 4, 0);
+		/*for (int x = 0; x < windowSize.x; x++)
 		{
 			
 			for (int y = 0; y < windowSize.y; y++)
@@ -93,7 +145,39 @@ int main( int argc, char *argv[] )
 				MCG::DrawPixel(glm::ivec2(x, y), pixelColour);
 			}
 			
+		}*/
+		int xBlockSize = windowSize.x / xblocks;
+		int yBlockSize = windowSize.y / yblocks;
+
+		for (int x = 0; x < xblocks; x++)
+		{
+
+			for (int y = 0; y < yblocks; y++)
+			{
+				//rayCastHit hit;
+				//pixelColour = tracer.getColour(cam.getRay(glm::vec2(x, y)), &m_objects, 0, 0, hit);
+
+				///MCG::DrawPixel(glm::ivec2(x, y), pixelColour);
+
+				forValues vals;
+				vals.xStart = xBlockSize * x;
+				vals.xEnd = vals.xStart + xBlockSize;
+				vals.yStart = yBlockSize * y;
+				vals.yEnd = vals.yStart + yBlockSize;
+				vals.tracer = &tracer;
+				vals.cam = &cam;
+				vals._pixels = pixels;
+
+				threads.push_back(std::thread(threadFunc, vals, std::ref(m_objects)));
+			}
+
 		}
+
+		for (int i = 0; i < threads.size(); i++)
+		{
+			threads[i].join();
+		}
+
  		pass++;
 	}
 
@@ -101,5 +185,7 @@ int main( int argc, char *argv[] )
 	
 
 }
+
+
 
 

@@ -33,6 +33,7 @@ namespace MCG
 	/// For cleanly shutting down the graphics system
 	void Cleanup();
 
+	SDL_Renderer* getRenderer();
 };
 
 

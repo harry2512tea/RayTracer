@@ -38,14 +38,14 @@ vec3 Sphere::shadePixel(Ray _ray, glm::vec3 _intersect, vec3 _LightPos, int dept
 
 	vec3 I;
 
-	float SourceIntensity = 2.0f;
+	float SourceIntensity = 4.0f;
 	if (depth < maxDepth)
 	{
 		float maxScatter = 67.5f;
 		rayCastHit hit;
 
 		int maxRayNumbers = 20;
-		int rayNumbers = 50;
+		int rayNumbers = 60;
 
 		I = BRDF * vec3(1.0f) * dot(N, normalize(_LightPos - _intersect));
 
@@ -91,7 +91,7 @@ vec3 Sphere::shadePixel(Ray _ray, glm::vec3 _intersect, vec3 _LightPos, int dept
 	}
 	else
 	{
-		I = BRDF * vec3(1.0f) * SourceIntensity * (1/distance2(_LightPos, m_position)) * dot(N, normalize(_LightPos - _intersect));
+		I = BRDF * vec3(1.0f) * SourceIntensity * (1 - Roughness) * (1 / distance2(_LightPos, m_position)) *  dot(N, normalize(_LightPos - _intersect));
 		//I = vec3(1.0f);
 	}
 

@@ -1,5 +1,32 @@
 ﻿  Main.cpp
-  Object.cpp
-  RayTracer.cpp
-  Generating Code...
-  MCG_GFX_Framework.vcxproj -> C:\RayTracer\RayTracer\Debug\MCG_GFX_Framework.exe
+H:\GitHub\raytracer\RayTracer\MCG_GFX_Framework\Main.cpp(45,46): warning C4244: '=': conversion from 'T' to '_Ty', possible loss of data
+          with
+          [
+              T=float
+          ]
+          and
+          [
+              _Ty=unsigned char
+          ]
+H:\GitHub\raytracer\RayTracer\MCG_GFX_Framework\Main.cpp(46,46): warning C4244: '=': conversion from 'T' to '_Ty', possible loss of data
+          with
+          [
+              T=float
+          ]
+          and
+          [
+              _Ty=unsigned char
+          ]
+H:\GitHub\raytracer\RayTracer\MCG_GFX_Framework\Main.cpp(47,46): warning C4244: '=': conversion from 'T' to '_Ty', possible loss of data
+          with
+          [
+              T=float
+          ]
+          and
+          [
+              _Ty=unsigned char
+          ]
+H:\GitHub\raytracer\RayTracer\MCG_GFX_Framework\Main.cpp(174,21): warning C4018: '<': signed/unsigned mismatch
+H:\GitHub\raytracer\RayTracer\MCG_GFX_Framework\Main.cpp(126,6): warning C4101: 'ticks': unreferenced local variable
+Camera.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'Camera.obj' or at 'H:\GitHub\raytracer\RayTracer\Debug\vc143.pdb'; linking object as if no debug info
+  MCG_GFX_Framework.vcxproj -> H:\GitHub\raytracer\RayTracer\Debug\MCG_GFX_Framework.exe
