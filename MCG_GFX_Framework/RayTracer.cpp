@@ -3,9 +3,9 @@
 
 #include <iostream>
 
-vec3 Tracer::LightPos = vec3(0.0f, -0.0f, -10.0f);
+vec3 Tracer::LightPos = vec3(-3.0f, 2.0f, 0.0f);
 
-glm::vec3 Tracer::getColour(Ray _ray, std::list<Shared<Sphere>>* Objs, int depth, int _ignore)
+glm::vec3 Tracer::getColour(Ray _ray, std::list<Shared<Sphere>>* Objs, int depth, int _ignore, rayCastHit &out)
 {
 	rayCastHit hit;
 	hit.distance = -1;
@@ -28,10 +28,14 @@ glm::vec3 Tracer::getColour(Ray _ray, std::list<Shared<Sphere>>* Objs, int depth
 			}
 		}
 	}
-	
+	out = hit;
 	if (hit.hit)
 	{
 		return (*finalIt)->shadePixel(_ray, hit.point, LightPos, depth, Objs);
+	}
+	else if(depth == 0)
+	{
+		return vec3(0.2f);
 	}
 	else
 	{

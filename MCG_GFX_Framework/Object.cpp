@@ -17,7 +17,7 @@ vec3 Sphere::shadePixel(Ray _ray, glm::vec3 _intersect, vec3 _LightPos, int dept
 
 	vec3 LightDir = normalize(_LightPos - _intersect);
 
-	float diff = max(dot(N, LightDir), 0.0f);
+	//float diff = max(dot(N, LightDir), 0.0f);
 	/*vec3 diffuse = vec3(1.0f) * diff;
 
 	float specularStrength = 1.0f;
@@ -37,12 +37,15 @@ vec3 Sphere::shadePixel(Ray _ray, glm::vec3 _intersect, vec3 _LightPos, int dept
 	vec3 BRDF =  diffuse + spec;
 
 	vec3 I;
+
+	float SourceIntensity = 2.0f;
 	if (depth < maxDepth)
 	{
-		float maxScatter = 90.0f;
-		
+		float maxScatter = 67.5f;
+		rayCastHit hit;
+
 		int maxRayNumbers = 20;
-		int rayNumbers = 100;
+		int rayNumbers = 50;
 
 		I = BRDF * vec3(1.0f) * dot(N, normalize(_LightPos - _intersect));
 
@@ -50,9 +53,9 @@ vec3 Sphere::shadePixel(Ray _ray, glm::vec3 _intersect, vec3 _LightPos, int dept
 		{
 			//maxScatter = (1 - Roughness) * maxScatter;
 			//std::cout << 1 - Roughness << std::endl;
-			quat QuatAroundX = angleAxis(radians(linearRand(-maxScatter, maxScatter) * 1 - Roughness), vec3(1.0, 0.0, 0.0));
-			quat QuatAroundY = angleAxis(radians(linearRand(-maxScatter, maxScatter) * 1 - Roughness), vec3(0.0, 1.0, 0.0));
-			quat QuatAroundZ = angleAxis(radians(linearRand(-maxScatter, maxScatter) * 1 - Roughness), vec3(0.0, 0.0, 1.0));
+			quat QuatAroundX = angleAxis(radians(linearRand(-maxScatter, maxScatter) *  Roughness), vec3(1.0, 0.0, 0.0));
+			quat QuatAroundY = angleAxis(radians(linearRand(-maxScatter, maxScatter) *  Roughness), vec3(0.0, 1.0, 0.0));
+			quat QuatAroundZ = angleAxis(radians(linearRand(-maxScatter, maxScatter) *  Roughness), vec3(0.0, 0.0, 1.0));
 			quat finalOrientation = QuatAroundX * QuatAroundY * QuatAroundZ;
 
 
@@ -73,8 +76,8 @@ vec3 Sphere::shadePixel(Ray _ray, glm::vec3 _intersect, vec3 _LightPos, int dept
 
 			BRDF = diffuse + spec;
 			spec = SpecularBRDF(_intersect, _LightPos);
-			//I += BRDF * (Tracer::getColour(ray, Objs, depth + 1, ID) / rayNumbers * dot(N, ray.getDirection()));
-			I += BRDF * (Tracer::getColour(ray, Objs, depth + 1, ID) * dot(N, normalize(_LightPos - _intersect)));
+			I += BRDF * ((Tracer::getColour(ray, Objs, depth + 1, ID, hit)) * 1 / (hit.distance * hit.distance)) * dot(N, (hit.point - ray.getOrigin()));
+			//I += BRDF * (Tracer::getColour(ray, Objs, depth + 1, ID) * dot(N, normalize(_LightPos - _intersect)));
 		}
 
 
@@ -83,13 +86,16 @@ vec3 Sphere::shadePixel(Ray _ray, glm::vec3 _intersect, vec3 _LightPos, int dept
 		vec3 dir = reflect(_ray.getDirection(), N);
 
 		Ray ray = Ray(_intersect, dir);
-		//I += BRDF * (Tracer::getColour(ray, Objs, depth + 1, ID)) * (1.0f - Roughness) * dot(N, normalize(_LightPos - _intersect));
+		rayCastHit hit2;
+		I += BRDF * (Tracer::getColour(ray, Objs, depth + 1, ID, hit2)) * dot(N, hit.point - (ray.getDirection() * 10));
 	}
 	else
 	{
-		I = BRDF * vec3(1.0f) * dot(N, normalize(_LightPos - _intersect));
+		I = BRDF * vec3(1.0f) * SourceIntensity * (1/distance2(_LightPos, m_position)) * dot(N, normalize(_LightPos - _intersect));
 		//I = vec3(1.0f);
 	}
+
+	I = clamp(I, albedo * 0.01f, vec3(1.0f));
 
 
 	return I;

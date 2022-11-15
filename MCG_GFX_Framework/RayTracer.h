@@ -37,7 +37,7 @@ private:
 class Tracer
 {
 public:
-	static glm::vec3 getColour(Ray _ray, std::list<Shared<Sphere>> *Objs, int depth, int _ignore);
+	static glm::vec3 getColour(Ray _ray, std::list<Shared<Sphere>> *Objs, int depth, int _ignore, rayCastHit &out);
 private:
 	static vec3 LightPos;
 	static vec3 getPointOnLine(Ray _ray, glm::vec3 _point);

@@ -1,2 +1,5 @@
-﻿  Object.cpp
+﻿  Main.cpp
+  Object.cpp
+  RayTracer.cpp
+  Generating Code...
   MCG_GFX_Framework.vcxproj -> C:\RayTracer\RayTracer\Debug\MCG_GFX_Framework.exe

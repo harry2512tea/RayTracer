@@ -27,8 +27,8 @@ private:
 	vec3 albedo = vec3(1.0f, 1.0f, 1.0f);
 	
 	vec3 F0 = vec3(0.05f);
-	float Roughness = 0.5f;
-	float m_radius = 1.0f;
+	float Roughness = 0.0f;
+	float m_radius = 0.5f;
 	glm::vec3 m_position{0.0f, 0.0f, -8.0f};
 
 	int maxDepth = 1;
