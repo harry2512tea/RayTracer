@@ -27,10 +27,9 @@ struct forValues
 	Camera* cam;
 	Tracer* tracer;
 	ivec2 windowSize;
-	std::vector<unsigned char>* _pixels;
 };
 
-void threadFunc(forValues vals, std::list<Shared<Sphere>>& objs)
+void threadFunc(forValues vals, std::list<Shared<Sphere>>& objs, std::vector<unsigned char>& _pixels)
 {
 	for (int x = vals.xStart; x < vals.xEnd; x++)
 	{
@@ -41,13 +40,14 @@ void threadFunc(forValues vals, std::list<Shared<Sphere>>& objs)
 			vec3 pixelColour;
 			pixelColour = vals.tracer->getColour(vals.cam->getRay(glm::vec2(x, y)), &objs, 0, 0, hit);
 
-			std::vector<unsigned char> pix;
+			glm::clamp(pixelColour, 0.0f, 1.0f);
+
 			mutex.lock();
 			const unsigned int offset = (vals.windowSize.x * y * 4) + x * 4;
-			vals._pixels[offset + 0] = (pixelColour.z * 256);
-			vals._pixels[offset + 1] = (pixelColour.y * 256);
-			vals._pixels[offset + 2] = (pixelColour.x * 256);
-			vals._pixels[offset + 3] = SDL_ALPHA_OPAQUE;
+			_pixels[offset + 0] = (pixelColour.z * 255);
+			_pixels[offset + 1] = (pixelColour.y * 255);
+			_pixels[offset + 2] = (pixelColour.x * 255);
+			_pixels[offset + 3] = SDL_ALPHA_OPAQUE;
 			MCG::DrawPixel(glm::ivec2(x, y), pixelColour);
 			mutex.unlock();
 		}
@@ -124,6 +124,8 @@ int main( int argc, char *argv[] )
 	
 	std::vector<std::thread> threads;
 	SDL_Texture* texture = SDL_CreateTexture(MCG::getRenderer(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, windowSize.x, windowSize.y);
+	std::vector<unsigned char> pixels(windowSize.x * windowSize.y * 4, 0);
+
 
 	int ticks;
 	while( MCG::ProcessFrame() )
@@ -133,7 +135,7 @@ int main( int argc, char *argv[] )
 
 		std::cout << "Pass No: " << pass << std::endl;
 
-		std::vector<unsigned char> pixels(windowSize.x * windowSize.y * 4, 0);
+		
 		/*for (int x = 0; x < windowSize.x; x++)
 		{
 			
@@ -166,9 +168,8 @@ int main( int argc, char *argv[] )
 				vals.yEnd = vals.yStart + yBlockSize;
 				vals.tracer = &tracer;
 				vals.cam = &cam;
-				vals._pixels = pixels;
 
-				threads.push_back(std::thread(threadFunc, vals, std::ref(m_objects)));
+				threads.push_back(std::thread(threadFunc, vals, std::ref(m_objects), std::ref(pixels)));
 			}
 
 		}
@@ -177,6 +178,17 @@ int main( int argc, char *argv[] )
 		{
 			threads[i].join();
 		}
+
+
+		unsigned char* lockedPixels = nullptr;
+		int pitch = 0;
+		//SDL_LockTexture(texture, nullptr, reinterpret_cast<void**>(&lockedPixels), &pitch);
+		//std::copy_n(pixels.data(), pixels.size(), lockedPixels);
+		//SDL_UnlockTexture(texture);
+
+		//SDL_UpdateTexture(texture, NULL, pixels.data(), windowSize.x * 4);
+		//SDL_RenderCopy(MCG::getRenderer(), texture, nullptr, nullptr);
+		//SDL_RenderPresent(MCG::getRenderer());
 
  		pass++;
 	}

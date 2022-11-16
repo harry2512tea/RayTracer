@@ -43,6 +43,22 @@ glm::vec3 Tracer::getColour(Ray _ray, std::list<Shared<Sphere>>* Objs, int depth
 	}
 }
 
+bool Tracer::CastShadowRay(Ray _ray, std::list<Shared<Sphere>>* Objs, int _ignore)
+{
+	for (auto it = Objs->begin(); it != Objs->end(); it++)
+	{
+		if ((*it)->ID != _ignore)
+		{
+			rayCastHit temp = RaySphereIntersect(_ray, (*it)->getPos(), (*it)->getRadius());
+			
+			if (temp.hit == true)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
 
 rayCastHit Tracer::RaySphereIntersect(Ray _ray, vec3 _pos, float _r)
 {

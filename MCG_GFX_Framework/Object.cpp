@@ -38,6 +38,10 @@ vec3 Sphere::shadePixel(Ray _ray, glm::vec3 _intersect, vec3 _LightPos, int dept
 
 	vec3 I;
 
+
+	vec3 shadowRayDir = normalize(_LightPos - _intersect);
+	Ray shadowRay = Ray(_intersect, shadowRayDir);
+
 	float SourceIntensity = 4.0f;
 	if (depth < maxDepth)
 	{
@@ -46,8 +50,13 @@ vec3 Sphere::shadePixel(Ray _ray, glm::vec3 _intersect, vec3 _LightPos, int dept
 
 		int maxRayNumbers = 20;
 		int rayNumbers = 60;
-
-		I = BRDF * vec3(1.0f) * dot(N, normalize(_LightPos - _intersect));
+		I = vec3(0.0f);
+		
+		
+		if (!Tracer::CastShadowRay(shadowRay, Objs, ID))
+		{
+			I += BRDF * vec3(1.0f) * dot(N, normalize(_LightPos - _intersect));
+		}
 
 		for (int i = 0; i < rayNumbers; i++)
 		{
@@ -91,7 +100,13 @@ vec3 Sphere::shadePixel(Ray _ray, glm::vec3 _intersect, vec3 _LightPos, int dept
 	}
 	else
 	{
-		I = BRDF * vec3(1.0f) * SourceIntensity * (1 - Roughness) * (1 / distance2(_LightPos, m_position)) *  dot(N, normalize(_LightPos - _intersect));
+
+		if (Tracer::CastShadowRay(shadowRay, Objs, ID))
+		{
+			I = BRDF * vec3(1.0f) * SourceIntensity * (1 - Roughness) * (1 / distance2(_LightPos, m_position)) * dot(N, normalize(_LightPos - _intersect));
+		}
+
+		
 		//I = vec3(1.0f);
 	}
 
