@@ -1,16 +1,17 @@
 #include "RayTracer.h"
 #include "Object.h"
+#include "Plane.h"
 
 #include <iostream>
 
 vec3 Tracer::LightPos = vec3(-3.0f, 2.0f, 0.0f);
 
-glm::vec3 Tracer::getColour(Ray _ray, std::list<Shared<Sphere>>* Objs, int depth, int _ignore, rayCastHit &out)
+glm::vec3 Tracer::getColour(Ray _ray, std::list<Shared<Sphere>>* Objs, std::list<Shared<Plane>>* Planes, int depth, int _ignore, rayCastHit &out)
 {
 	rayCastHit hit;
 	hit.distance = -1;
 	hit.hit = false;
-	auto finalIt = Objs->begin();
+	auto finalSphereIt = Objs->begin();
 	for (auto it = Objs->begin(); it != Objs->end(); it++)
 	{
 		if ((*it)->ID != _ignore)
@@ -23,15 +24,42 @@ glm::vec3 Tracer::getColour(Ray _ray, std::list<Shared<Sphere>>* Objs, int depth
 				{
 					//std::cout << temp.distance << std::endl;
 					hit = temp;
-					finalIt = it;
+					finalSphereIt = it;
+					hit.hitType = 1;
 				}
 			}
 		}
 	}
+	auto finalPlaneIt = Planes->begin();
+	for (auto it = Planes->begin(); it != Planes->end(); it++)
+	{
+		rayCastHit temp = (*it)->findIntersection(_ray);
+		//std::cout << temp.hit << std::endl;
+		if (temp.hit)
+		{
+			if (temp.distance < hit.distance || hit.distance == -1)
+			{
+				//std::cout << temp.distance << std::endl;
+				hit = temp;
+				finalPlaneIt = it;
+				hit.hitType = 1;
+			}
+		}
+	}
+
+
 	out = hit;
 	if (hit.hit)
 	{
-		return (*finalIt)->shadePixel(_ray, hit.point, LightPos, depth, Objs);
+		switch (hit.hitType)
+		{
+		case 0:
+			break;
+		case 1:
+			return (*finalSphereIt)->shadePixel(_ray, hit.point, LightPos, depth, Objs, Planes);
+			break;
+		}
+		
 	}
 	else if(depth == 0)
 	{
@@ -43,7 +71,7 @@ glm::vec3 Tracer::getColour(Ray _ray, std::list<Shared<Sphere>>* Objs, int depth
 	}
 }
 
-bool Tracer::CastShadowRay(Ray _ray, std::list<Shared<Sphere>>* Objs, int _ignore)
+bool Tracer::CastShadowRay(Ray _ray, std::list<Shared<Sphere>>* Objs, std::list<Shared<Plane>>* Planes, int _ignore)
 {
 	for (auto it = Objs->begin(); it != Objs->end(); it++)
 	{

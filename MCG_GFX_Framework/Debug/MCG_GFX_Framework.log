@@ -1,2 +1,31 @@
-﻿  Object.cpp
-  MCG_GFX_Framework.vcxproj -> C:\RayTracer\RayTracer\Debug\MCG_GFX_Framework.exe
+﻿  Main.cpp
+H:\GitHub\raytracer\RayTracer\MCG_GFX_Framework\Main.cpp(50,41): warning C4244: '=': conversion from 'T' to '_Ty', possible loss of data
+          with
+          [
+              T=float
+          ]
+          and
+          [
+              _Ty=unsigned char
+          ]
+H:\GitHub\raytracer\RayTracer\MCG_GFX_Framework\Main.cpp(51,41): warning C4244: '=': conversion from 'T' to '_Ty', possible loss of data
+          with
+          [
+              T=float
+          ]
+          and
+          [
+              _Ty=unsigned char
+          ]
+H:\GitHub\raytracer\RayTracer\MCG_GFX_Framework\Main.cpp(52,41): warning C4244: '=': conversion from 'T' to '_Ty', possible loss of data
+          with
+          [
+              T=float
+          ]
+          and
+          [
+              _Ty=unsigned char
+          ]
+H:\GitHub\raytracer\RayTracer\MCG_GFX_Framework\Main.cpp(190,21): warning C4018: '<': signed/unsigned mismatch
+H:\GitHub\raytracer\RayTracer\MCG_GFX_Framework\Main.cpp(143,6): warning C4101: 'ticks': unreferenced local variable
+  MCG_GFX_Framework.vcxproj -> H:\GitHub\raytracer\RayTracer\Debug\MCG_GFX_Framework.exe

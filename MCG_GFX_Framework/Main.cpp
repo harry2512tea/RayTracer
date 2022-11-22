@@ -12,6 +12,7 @@
 #include "Camera.h"
 #include "RayTracer.h"
 #include "Object.h"
+#include "Plane.h"
 
 
 #define Shared std::shared_ptr
@@ -29,7 +30,7 @@ struct forValues
 	ivec2 windowSize;
 };
 
-void threadFunc(forValues vals, std::list<Shared<Sphere>>& objs, std::vector<unsigned char>& _pixels)
+void threadFunc(forValues vals, std::list<Shared<Sphere>>& objs, std::list<Shared<Plane>>& planes, std::vector<unsigned char>& _pixels)
 {
 	for (int x = vals.xStart; x < vals.xEnd; x++)
 	{
@@ -38,9 +39,11 @@ void threadFunc(forValues vals, std::list<Shared<Sphere>>& objs, std::vector<uns
 		{
 			rayCastHit hit;
 			vec3 pixelColour;
-			pixelColour = vals.tracer->getColour(vals.cam->getRay(glm::vec2(x, y)), &objs, 0, 0, hit);
+			pixelColour = vals.tracer->getColour(vals.cam->getRay(glm::vec2(x, y)), &objs, &planes, 0, 0, hit);
 
-			glm::clamp(pixelColour, 0.0f, 1.0f);
+			glm::clamp(pixelColour.x, 0.0f, 1.0f);
+			glm::clamp(pixelColour.y, 0.0f, 1.0f);
+			glm::clamp(pixelColour.z, 0.0f, 1.0f);
 
 			mutex.lock();
 			const unsigned int offset = (vals.windowSize.x * y * 4) + x * 4;
@@ -60,6 +63,7 @@ int main( int argc, char *argv[] )
 	
 	// Variable for storing window dimensions
 	glm::ivec2 windowSize( 640, 480 );
+	//glm::ivec2 windowSize(1920, 1080);
 
 	// Call MCG::Init to initialise and create your window
 	// Tell it what size you want the window to be
@@ -112,12 +116,21 @@ int main( int argc, char *argv[] )
 	int yblocks = 12;
 
 	std::list<Shared<Sphere>> m_objects;
+	std::list<Shared<Plane>> m_planes;
 	m_objects.push_back(std::make_shared<Sphere>(1, vec3(1.0f, -0.0f, -11.0f), vec3(0.0f, 0.0f, 1.0f)));
-	m_objects.push_back(std::make_shared<Sphere>(2, vec3(-0.5f, -0.0f, -12.0f), vec3(1.0f, 1.0f, 1.0f)));
-	//m_objects.push_back(std::make_shared<Sphere>(3, vec3(1.5f, 1.0f, -15.0f), vec3(1.0f, 1.0f, 1.0f)));
+	m_objects.push_back(std::make_shared<Sphere>(2, vec3(-0.5f, -1.0f, -12.0f), vec3(1.0f, 1.0f, 1.0f)));
+
+
+
+	m_objects.push_back(std::make_shared<Sphere>(3, vec3(0.0f, 1.0f, -10.0f), vec3(1.0f, 1.0f, 1.0f)));
+	m_objects.back()->setRadius(5.0f);
+	m_objects.back()->setRoughness(1.0f);
 	//m_objects.push_back(std::make_shared<Sphere>(4, vec3(-1.5f, 1.0f, -15.0f), vec3(0.0f, 0.0f, 1.0f)));
 	//m_objects.push_back(std::make_shared<Sphere>(3, vec3(-1.5f, 1.5f, -17.0f), vec3(1.0f, 0.0f, 0.0f)));
 	//m_objects.push_back(std::make_shared<Sphere>());
+
+
+	//m_planes.push_back(std::make_shared<Plane>());
 
 	// This is our game loop
 	// It will run until the user presses 'escape' or closes the window
@@ -169,7 +182,7 @@ int main( int argc, char *argv[] )
 				vals.tracer = &tracer;
 				vals.cam = &cam;
 
-				threads.push_back(std::thread(threadFunc, vals, std::ref(m_objects), std::ref(pixels)));
+				threads.push_back(std::thread(threadFunc, vals, std::ref(m_objects), std::ref(m_planes), std::ref(pixels)));
 			}
 
 		}

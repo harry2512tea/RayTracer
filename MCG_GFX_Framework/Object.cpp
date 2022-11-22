@@ -11,7 +11,7 @@ Sphere::Sphere(int _ID, vec3 Pos, vec3 _albedo)
 	ID = _ID;
 }
 
-vec3 Sphere::shadePixel(Ray _ray, glm::vec3 _intersect, vec3 _LightPos, int depth, std::list<Shared<Sphere>>* Objs)
+vec3 Sphere::shadePixel(Ray _ray, glm::vec3 _intersect, vec3 _LightPos, int depth, std::list<Shared<Sphere>>* Objs, std::list<Shared<Plane>>* Planes)
 {
 	vec3 N = getNormal(_intersect);
 
@@ -53,7 +53,7 @@ vec3 Sphere::shadePixel(Ray _ray, glm::vec3 _intersect, vec3 _LightPos, int dept
 		I = vec3(0.0f);
 		
 		
-		if (!Tracer::CastShadowRay(shadowRay, Objs, ID))
+		if (!Tracer::CastShadowRay(shadowRay, Objs, Planes, ID))
 		{
 			I += BRDF * vec3(1.0f) * dot(N, normalize(_LightPos - _intersect));
 		}
@@ -85,7 +85,7 @@ vec3 Sphere::shadePixel(Ray _ray, glm::vec3 _intersect, vec3 _LightPos, int dept
 
 			BRDF = diffuse + spec;
 			spec = SpecularBRDF(_intersect, _LightPos);
-			I += BRDF * ((Tracer::getColour(ray, Objs, depth + 1, ID, hit)) * 1 / (hit.distance * hit.distance)) * dot(N, (hit.point - ray.getOrigin()));
+			I += BRDF * ((Tracer::getColour(ray, Objs, Planes, depth + 1, ID, hit)) * 1 / (hit.distance * hit.distance)) * dot(N, (hit.point - ray.getOrigin()));
 			//I += BRDF * (Tracer::getColour(ray, Objs, depth + 1, ID) * dot(N, normalize(_LightPos - _intersect)));
 		}
 
@@ -96,12 +96,12 @@ vec3 Sphere::shadePixel(Ray _ray, glm::vec3 _intersect, vec3 _LightPos, int dept
 
 		Ray ray = Ray(_intersect, dir);
 		rayCastHit hit2;
-		I += BRDF * (Tracer::getColour(ray, Objs, depth + 1, ID, hit2)) * dot(N, hit.point - (ray.getDirection() * 10));
+		I += BRDF * (Tracer::getColour(ray, Objs, Planes, depth + 1, ID, hit2)) * dot(N, hit.point - (ray.getDirection() * 10));
 	}
 	else
 	{
 
-		if (Tracer::CastShadowRay(shadowRay, Objs, ID))
+		if (Tracer::CastShadowRay(shadowRay, Objs, Planes, ID))
 		{
 			I = BRDF * vec3(1.0f) * SourceIntensity * (1 - Roughness) * (1 / distance2(_LightPos, m_position)) * dot(N, normalize(_LightPos - _intersect));
 		}

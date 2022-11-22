@@ -13,14 +13,19 @@ using namespace glm;
 
 class Ray;
 
+class Plane;
+
 class Sphere
 {
 public:
 	Sphere(int _ID, vec3 Pos, vec3 albedo);
-	glm::vec3 shadePixel(Ray _ray, glm::vec3 _intersect, vec3 _LightPos, int depth, std::list<Shared<Sphere>>* Objs);
+	glm::vec3 shadePixel(Ray _ray, glm::vec3 _intersect, vec3 _LightPos, int depth, std::list<Shared<Sphere>>* Objs, std::list<Shared<Plane>>* Planes);
 	vec3 getPos() { return m_position; };
 	float getRadius() { return m_radius; };
 	vec3 getNormal(vec3 _intersect);
+
+	void setRadius(float _rad) { m_radius = _rad; };
+	void setRoughness(float _rough) { Roughness = _rough; };
 	int ID;
 private:
 	
